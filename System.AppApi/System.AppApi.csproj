@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>d5d69afe-0eb7-4620-80c5-f0799b0ae96a</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSwag.AspNetCore" Version="13.16.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\System.AppContracts\System.AppContracts.csproj" />
+    <ProjectReference Include="..\System.Application\System.Application.csproj" />
+    <ProjectReference Include="..\System.Infrastructure\System.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
