@@ -1,5 +1,6 @@
 using System.AppContracts.AppContracts;
 using System.Application.Services.Authentication;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace System.AppApi.Controllers;
@@ -19,13 +20,25 @@ public class AccountController : ControllerBase
     public IActionResult Register(RegisterRequest request)
     {
         var result = _service.Register(request.UserName, request.Mima);
-        return Ok(result);
+        var response = new AuthenticationResponse(
+            Id: result.user.Id,
+            UserName: result.user.UserName,
+            AccessToken: result.AccessToken,
+            ExpiresIn: result.ExpiresIn
+        );
+        return Ok(response);
     }
 
     [HttpPost("login")]
     public IActionResult Login(LoginRequest request)
     {
         var result = _service.Login(request.UserName, request.Mima);
-        return Ok(result);
+        var response = new AuthenticationResponse(
+            Id: result.user.Id,
+            UserName: result.user.UserName,
+            AccessToken: result.AccessToken,
+            ExpiresIn: result.ExpiresIn
+        );
+        return Ok(response);
     }
 }

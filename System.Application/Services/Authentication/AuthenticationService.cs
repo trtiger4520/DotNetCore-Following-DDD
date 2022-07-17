@@ -1,5 +1,7 @@
 using System.Application.Common.Interfaces.Authentication;
+using System.Application.Common.Interfaces.Persistence;
 using System.Application.Common.Interfaces.Services;
+using System.Domain.Entities;
 
 namespace System.Application.Services.Authentication;
 
@@ -7,32 +9,50 @@ public class AuthenticationService : IAuthenticationService
 {
     private readonly IJwtTokenGenerator _tokenGenerator;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IUserRepository _userRepository;
 
-    public AuthenticationService(IJwtTokenGenerator tokenGenerator, IDateTimeProvider dateTimeProvider)
+    public AuthenticationService(IJwtTokenGenerator tokenGenerator, IDateTimeProvider dateTimeProvider, IUserRepository userRepository)
     {
         _tokenGenerator = tokenGenerator;
         _dateTimeProvider = dateTimeProvider;
+        _userRepository = userRepository;
     }
 
     public AuthenticationResult Login(string userName, string mima)
     {
-        var id = Guid.NewGuid();
+        if (_userRepository.GetUserByUserName(userName) is not User user)
+        {
+            throw new Exception("使用者不存在");
+        }
 
-        var token = _tokenGenerator.GenerateToken(id, userName);
+        if (user.Mima != mima)
+        {
+            throw new Exception("密碼錯誤");
+        }
 
-        return new AuthenticationResult(id, userName, token, DateTime.Now.AddDays(7));
+        var token = _tokenGenerator.GenerateToken(user);
+
+        return new AuthenticationResult(user, token, DateTime.Now.AddDays(7));
     }
 
     public AuthenticationResult Register(string userName, string mima)
     {
-        // TODO 確認使用者是否存在
+        if (_userRepository.GetUserByUserName(userName) is not null)
+        {
+            throw new Exception("使用者已存在");
+        }
 
-        // TODO 建立使用者
+        var user = new User
+        {
+            UserName = userName,
+            Mima = mima,
+            CreateTime = _dateTimeProvider.Now,
+        };
 
-        var id = Guid.NewGuid();
+        _userRepository.AddUser(user);
 
-        var token = _tokenGenerator.GenerateToken(id, userName);
+        var token = _tokenGenerator.GenerateToken(user);
 
-        return new AuthenticationResult(id, userName, token, _dateTimeProvider.UtcNow.AddDays(7));
+        return new AuthenticationResult(user, token, _dateTimeProvider.UtcNow.AddDays(7));
     }
 }

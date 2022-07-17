@@ -1,8 +1,9 @@
+using System.Domain.Entities;
+
 namespace System.Application.Services.Authentication;
 
 public record AuthenticationResult(
-    Guid Id,
-    string UserName,
+    User user,
     string AccessToken,
     DateTime ExpiresIn
 );
